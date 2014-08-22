@@ -30,20 +30,54 @@ public class GEPanel extends JPanel implements Serializable {
         initComponents();
     }
 
+    /**
+     * Get the com interface to GE on the native side
+     *
+     * @return
+     */
+    public IApplicationGE getInternObject() {
+        return ge;
+    }
+
+    /**
+     * Load kml as long string
+     *
+     * @param kmlData
+     * @throws COMException
+     */
     public void loadKMLString(String kmlData) throws COMException {
         this.ge.LoadKmlData(kmlData);
 
     }
 
+    /**
+     * Load kml file
+     *
+     * @param kmlFile
+     * @throws COMException
+     */
     public void loadKMLFile(String kmlFile) throws COMException {
         this.ge.OpenKmlFile(kmlFile, 0);
 
     }
 
+    /**
+     * Load kml file
+     *
+     * @param file
+     * @throws COMException
+     */
     public void loadKmlFile(File file) throws COMException {
         this.loadKMLFile(file.getAbsolutePath());
     }
 
+    /**
+     * Initiate GE, calling this method would start GE on the native side
+     *
+     * @throws COMException
+     * @throws InterruptedException
+     * @throws IOException
+     */
     public void initGE() throws COMException, InterruptedException, IOException {
         //Start Google Earth
         ge = new IApplicationGE("GoogleEarth.ApplicationGE");
@@ -67,18 +101,107 @@ public class GEPanel extends JPanel implements Serializable {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Sets the visibility of GE on the native side
+     *
+     * @param flag
+     * @throws COMException
+     * @throws IOException
+     */
     public void setGEWinVisibility(boolean flag) throws COMException, IOException {
         User32.ShowWindow(getGEMainHandle(), flag ? 3 : 0);
     }
 
+    /**
+     * Get the native handle of the Main window of GE
+     *
+     * @return
+     * @throws COMException
+     */
     public int getGEMainHandle() throws COMException {
         return (Integer) this.ge.GetMainHwnd();
     }
 
+    /**
+     * Get the native handle of the rendering ( the giant globe ) window of GE
+     *
+     * @return
+     * @throws COMException
+     */
     public int getGERenderHandle() throws COMException {
         return (Integer) ge.GetRenderHwnd();
     }
 
+    /**
+     * Get native handle for the Java container that "holds" this panel
+     *
+     * @return
+     * @throws NoSuchFieldException
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    private int getParentHandle() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Object nativePeer = WToolkit.targetToPeer(SwingUtilities.getWindowAncestor(this));
+        Class nativeClass = nativePeer.getClass();
+        Field f = getDeclaredField(nativeClass, "hwnd");
+        f.setAccessible(true);
+        return ((Long) f.get(nativePeer)).intValue();
+    }
+
+    /**
+     * Embed the native rendering window to the java container
+     *
+     * @throws COMException
+     * @throws InterruptedException
+     * @throws IOException
+     * @throws NoSuchFieldException
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    public void embedGE() throws COMException, InterruptedException, IOException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        if (this.isVisible()) {
+            System.out.println("render " + getGERenderHandle());
+            this.setGEWinVisibility(false);
+            this.swapHandles(getGERenderHandle(), getParentHandle());
+            // this.resizeGERenderHwnd();
+        }
+    }
+
+    /**
+     * Swap the native handles from src to dest
+     *
+     * @param srcHandle
+     * @param dstHandle
+     * @throws COMException
+     */
+    private void swapHandles(int srcHandle, int dstHandle) throws COMException {
+        FuncPtr setParent = new FuncPtr("USER32.DLL", "SetParent");
+        setParent.invoke_I(srcHandle, dstHandle, ReturnFlags.CHECK_FALSE);
+    }
+
+    /**
+     * Get the dimension of the native rendering window
+     *
+     * @return
+     * @throws org.jawin.COMException
+     * @throws java.io.IOException
+     */
+    public Dimension getGERenderDimension() throws COMException, IOException {
+        RECT dim = new RECT();
+        User32.GetClientRect(getGERenderHandle(), dim);
+        return new Dimension(dim.right + 10, dim.bottom + 10);
+    }
+
+    // Borrowed methods
+    /**
+     * Recursively find the field name in the given class
+     *
+     *
+     * @param cls
+     * @param fieldName
+     * @return
+     * @throws NoSuchFieldException
+     */
     private Field getDeclaredField(Class cls, String fieldName) throws NoSuchFieldException {
         Class c = cls;
         while (c != null && c != Object.class) {
@@ -91,37 +214,9 @@ public class GEPanel extends JPanel implements Serializable {
         throw new NoSuchFieldException(fieldName);
     }
 
-    private int getParentHandle() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        int hwnd = 0;
-        Object nativePeer = WToolkit.targetToPeer(SwingUtilities.getWindowAncestor(this));
-        Class nativeClass = nativePeer.getClass();
-        Field f = getDeclaredField(nativeClass, "hwnd");
-        f.setAccessible(true);
-        hwnd = ((Long) f.get(nativePeer)).intValue();
-        System.out.println("parent handle " + hwnd);
-        return hwnd;
-    }
-
-    public void embedGE() throws COMException, InterruptedException, IOException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        if (this.isVisible()) {
-            System.out.println("render " + getGERenderHandle());
-            this.setGEWinVisibility(false);
-            this.swapHandles(getGERenderHandle(), getParentHandle());
-            // this.resizeGERenderHwnd();
-        }
-    }
-
-    private void swapHandles(int srcHandle, int dstHandle) throws COMException {
-        FuncPtr setParent = new FuncPtr("USER32.DLL", "SetParent");
-        setParent.invoke_I(srcHandle, dstHandle, ReturnFlags.CHECK_FALSE);
-    }
-
-    public Dimension getGERenderDimension() throws COMException, IOException {
-        RECT dim = new RECT();
-        User32.GetClientRect(getGERenderHandle(), dim);
-        return new Dimension(dim.right + 10, dim.bottom + 10);
-    }
-
+    /**
+     * Terminate GE from the native side
+     */
     public void quitGE() {
         try {
             FuncPtr endTask = new FuncPtr("USER32.DLL", "EndTask");
@@ -145,10 +240,4 @@ public class GEPanel extends JPanel implements Serializable {
         }
     }
 
-    public IApplicationGE getInternObject() {
-        return ge;
-    }
-
 }
-
-

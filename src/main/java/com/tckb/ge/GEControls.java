@@ -31,7 +31,6 @@ public class GEControls extends javax.swing.JFrame {
 
     private GEFrame geFrame;
     private final File kmlFile = new File("genKML.kml");
-    private boolean stopSim;
     SwingWorker updateWorker = null;
     ICameraInfoGE cam = null;
 
@@ -450,10 +449,8 @@ public class GEControls extends javax.swing.JFrame {
 
                     while (true) {
 
-                        if (!stopSim) {
-                            updateKML(kmlFile);
-                            Thread.sleep(5000);
-                        }
+                        updateKML(kmlFile);
+                        Thread.sleep(5000);
 
                     }
                 }
