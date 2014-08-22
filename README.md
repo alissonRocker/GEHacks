@@ -4,8 +4,8 @@ Embeding Google earth on to a Java Frame. Jawin comes handy for interacting with
 
 Requirements:
 -------------
-Jawin - to interact with native com components  - http://jawinproject.sourceforge.net/jawin.html
-Jak - generate kml - http://labs.micromata.de/projects/jak/quickstart.html
+Jawin - to interact with native com components  - http://jawinproject.sourceforge.net/jawin.html <br/>
+Jak - generate kml - http://labs.micromata.de/projects/jak/quickstart.html <br/>
 
 
 
