@@ -9,6 +9,10 @@ Jak - generate kml - http://labs.micromata.de/projects/jak/quickstart.html <br/>
 ========
 For embedding GE, Jawin comes handy.The stubs (com/tckb/ge/stubs) generated from it is used interacting with the Google Earth's COM API. For now, the controls are a bit fuzzy but, I will try to fix it soon. 
  
+The demo of the hack: https://www.youtube.com/watch?v=2Pf8V8uubVM <br/>
+and 
+
+
 Have fun! <br/>
 tckb
 
