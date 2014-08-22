@@ -1,11 +1,11 @@
 Google earth hacks
 ==================
-Embeding Google earth on to a Java Frame.
+Embeding Google earth on to a Java Frame. Jawin comes handy for interacting with the Google Earth's COM API. The stubs for the com api generated from the Jawin are located at com/tckb/ge/stubs 
 
 Requirements:
+-------------
 Jawin - to interact with native com components  - http://jawinproject.sourceforge.net/jawin.html
 Jak - generate kml - http://labs.micromata.de/projects/jak/quickstart.html
-
 
 
 
