@@ -53,7 +53,6 @@ public class GEPanel extends JPanel implements Serializable {
             System.out.print(".");
         }
         System.out.println("\nGoogle Earth Initialized.\n");
-        System.out.println("Auto pilot speed:" + ge.getAutoPilotSpeed());
 
     }
 
