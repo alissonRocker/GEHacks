@@ -1,7 +1,7 @@
 /*
- * GoogleEarthPanel.java
- *
- * Created on December 5, 2007, 9:19 AM
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package com.tckb.ge;
 
@@ -81,12 +81,11 @@ public class GEPanel extends JPanel implements Serializable {
     public void initGE() throws COMException, InterruptedException, IOException {
         //Start Google Earth
         ge = new IApplicationGE("GoogleEarth.ApplicationGE");
-        System.out.print("Initializing Google Earth ");
+        System.out.print("Initializing Google Earth... ");
         while (ge.IsInitialized() <= 0) {
-            Thread.sleep(350);
-            System.out.print(".");
+            Thread.sleep(500);
         }
-        System.out.println("\nGoogle Earth Initialized.\n");
+        System.out.print("...done");
 
     }
 
@@ -160,7 +159,6 @@ public class GEPanel extends JPanel implements Serializable {
      */
     public void embedGE() throws COMException, InterruptedException, IOException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         if (this.isVisible()) {
-            System.out.println("render " + getGERenderHandle());
             this.setGEWinVisibility(false);
             this.swapHandles(getGERenderHandle(), getParentHandle());
             // this.resizeGERenderHwnd();
