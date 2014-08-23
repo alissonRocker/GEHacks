@@ -1,0 +1,29 @@
+Changes the parent window of the specified child window. 
+
+WND WINAPI SetParent(
+  _In_      HWND hWndChild,
+  _In_opt_  HWND hWndNewParent
+);
+
+Parameters
+
+hWndChild [in]
+
+    Type: HWND
+
+    A handle to the child window.
+hWndNewParent [in, optional]
+
+    Type: HWND
+
+    A handle to the new parent window. If this parameter is NULL, the desktop window becomes the new parent window. If this parameter is HWND_MESSAGE, the child window becomes a message-only window.
+
+Return value
+
+Type:
+
+Type: HWND
+
+If the function succeeds, the return value is a handle to the previous parent window.
+
+If the function fails, the return value is NULL. To get extended error information, call GetLastError. 

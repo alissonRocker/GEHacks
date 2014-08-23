@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import org.jawin.COMException;
@@ -46,6 +48,7 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws COMException
      */
     public void loadKMLString(String kmlData) throws COMException {
+        Logger.getAnonymousLogger().info("Loading KML data to GE");
         this.ge.LoadKmlData(kmlData);
 
     }
@@ -57,6 +60,7 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws COMException
      */
     public void loadKMLFile(String kmlFile) throws COMException {
+        Logger.getAnonymousLogger().log(Level.INFO, "Loading KML file:  {0}", kmlFile);
         this.ge.OpenKmlFile(kmlFile, 0);
 
     }
@@ -68,6 +72,7 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws COMException
      */
     public void loadKmlFile(File file) throws COMException {
+        Logger.getAnonymousLogger().log(Level.INFO, "Loading KML file:  {0}", file.getName());
         this.loadKMLFile(file.getAbsolutePath());
     }
 
@@ -81,11 +86,13 @@ public class GEPanel extends JPanel implements Serializable {
     public void initGE() throws COMException, InterruptedException, IOException {
         //Start Google Earth
         ge = new IApplicationGE("GoogleEarth.ApplicationGE");
-        System.out.print("Initializing Google Earth... ");
+        this.setGEWinVisibility(false);
+        Logger.getAnonymousLogger().info("Initializing Google Earth... ");
         while (ge.IsInitialized() <= 0) {
-            Thread.sleep(500);
+            System.out.print(">");
+            Thread.sleep(350);
         }
-        System.out.print("...done");
+        Logger.getAnonymousLogger().info("Done.");
 
     }
 
@@ -108,6 +115,7 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws IOException
      */
     public void setGEWinVisibility(boolean flag) throws COMException, IOException {
+        Logger.getAnonymousLogger().log(Level.INFO, "Setting the visibility of GE Main window {0}", flag);
         User32.ShowWindow(getGEMainHandle(), flag ? 3 : 0);
     }
 
@@ -118,6 +126,7 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws COMException
      */
     public int getGEMainHandle() throws COMException {
+        Logger.getAnonymousLogger().info("Retrieving GE Main window handle");
         return (Integer) this.ge.GetMainHwnd();
     }
 
@@ -128,6 +137,7 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws COMException
      */
     public int getGERenderHandle() throws COMException {
+        Logger.getAnonymousLogger().info("Retrieving GE rendering window handle");
         return (Integer) ge.GetRenderHwnd();
     }
 
@@ -140,8 +150,10 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws IllegalAccessException
      */
     private int getParentHandle() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Logger.getAnonymousLogger().info("Retrieving GE Main window handle");
         Object nativePeer = WToolkit.targetToPeer(SwingUtilities.getWindowAncestor(this));
         Class nativeClass = nativePeer.getClass();
+        Logger.getAnonymousLogger().log(Level.INFO, "Native peer class for parent: {0}", nativeClass.getCanonicalName());
         Field f = getDeclaredField(nativeClass, "hwnd");
         f.setAccessible(true);
         return ((Long) f.get(nativePeer)).intValue();
@@ -159,7 +171,9 @@ public class GEPanel extends JPanel implements Serializable {
      */
     public void embedGE() throws COMException, InterruptedException, IOException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         if (this.isVisible()) {
+            // turn off the visiblity of the native side GE
             this.setGEWinVisibility(false);
+            // this is where the magic happens!
             this.swapHandles(getGERenderHandle(), getParentHandle());
             // this.resizeGERenderHwnd();
         }
@@ -173,6 +187,7 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws COMException
      */
     private void swapHandles(int srcHandle, int dstHandle) throws COMException {
+        Logger.getAnonymousLogger().log(Level.INFO, "Swapping handle from {0} to {1}", new Object[]{srcHandle, dstHandle});
         FuncPtr setParent = new FuncPtr("USER32.DLL", "SetParent");
         setParent.invoke_I(srcHandle, dstHandle, ReturnFlags.CHECK_FALSE);
     }
@@ -185,6 +200,7 @@ public class GEPanel extends JPanel implements Serializable {
      * @throws java.io.IOException
      */
     public Dimension getGERenderDimension() throws COMException, IOException {
+        Logger.getAnonymousLogger().info("Retrieving GE rendering window dimension");
         RECT dim = new RECT();
         User32.GetClientRect(getGERenderHandle(), dim);
         return new Dimension(dim.right + 10, dim.bottom + 10);
@@ -215,27 +231,23 @@ public class GEPanel extends JPanel implements Serializable {
     /**
      * Terminate GE from the native side
      */
-    public void quitGE() {
-        try {
-            FuncPtr endTask = new FuncPtr("USER32.DLL", "EndTask");
-            //create a NakedByteStream for the serialization of Java variables
-            NakedByteStream nbs = new NakedByteStream();
-            // wrap it in a LittleEndianOutputStream
-            LittleEndianOutputStream leos = new LittleEndianOutputStream(nbs);
-            // and then write the Java arguments
-            leos.writeInt(getGERenderHandle());      //Handle to the window to be closed.
-            leos.writeInt(0);                       // Ignored. Must be FALSE.
-            leos.writeInt(1);
-            /* TRUE for this parameter will force the destruction of the window if an  
-             { initial } attempt fails to gently close the window using 
-             WM_CLOSE.With a FALSE for this parameter , only  { the 
-             } close with WM_CLOSE is attempted. */
-            endTask.invoke("III:I:", 12, nbs, null, ReturnFlags.CHECK_FALSE);
-        } catch (COMException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void quitGE() throws COMException, IOException {
+        Logger.getAnonymousLogger().info("Terminating GE from native side");
+        FuncPtr endTask = new FuncPtr("USER32.DLL", "EndTask");
+        //create a NakedByteStream for the serialization of Java variables
+        NakedByteStream nbs = new NakedByteStream();
+        // wrap it in a LittleEndianOutputStream
+        LittleEndianOutputStream leos = new LittleEndianOutputStream(nbs);
+        // and then write the Java arguments
+        leos.writeInt(getGERenderHandle());      //Handle to the window to be closed.
+        leos.writeInt(0);                       // Ignored. Must be FALSE.
+        leos.writeInt(1);
+        /* TRUE for this parameter will force the destruction of the window if an  
+         { initial } attempt fails to gently close the window using 
+         WM_CLOSE.With a FALSE for this parameter , only  { the 
+         } close with WM_CLOSE is attempted. */
+        endTask.invoke("III:I:", 12, nbs, null, ReturnFlags.CHECK_FALSE);
+
     }
 
 }

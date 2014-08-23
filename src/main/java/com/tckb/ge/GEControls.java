@@ -32,7 +32,6 @@ public class GEControls extends javax.swing.JFrame {
     private GEFrame geFrame;
     private final File kmlFile = new File("genKML.kml");
     SwingWorker updateWorker = null;
-    ICameraInfoGE cam = null;
 
     /**
      * Creates new form NewJFrame
@@ -71,6 +70,7 @@ public class GEControls extends javax.swing.JFrame {
         azm = new javax.swing.JLabel();
         geAlt = new javax.swing.JSlider();
         jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -180,6 +180,8 @@ public class GEControls extends javax.swing.JFrame {
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, geAlt, org.jdesktop.beansbinding.ELProperty.create("${value/1000} km"), jLabel7, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
+        jLabel8.setText("Camera controls");
+
         javax.swing.GroupLayout tiltLayout = new javax.swing.GroupLayout(tilt);
         tilt.setLayout(tiltLayout);
         tiltLayout.setHorizontalGroup(
@@ -218,7 +220,11 @@ public class GEControls extends javax.swing.JFrame {
                                 .addComponent(geLat, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(18, 18, 18)
                         .addComponent(geSearch)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, tiltLayout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel8)
+                        .addGap(52, 52, 52)))
                 .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -253,17 +259,6 @@ public class GEControls extends javax.swing.JFrame {
                             .addComponent(geTilt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(tiltLayout.createSequentialGroup()
-                                .addGap(5, 5, 5)
-                                .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel6))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(geAzm, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel5)
-                                    .addComponent(azm)))
-                            .addGroup(tiltLayout.createSequentialGroup()
                                 .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(geLoadKML)
                                     .addComponent(geStopSim))
@@ -280,7 +275,22 @@ public class GEControls extends javax.swing.JFrame {
                                     .addGroup(tiltLayout.createSequentialGroup()
                                         .addGap(32, 32, 32)
                                         .addComponent(geSearch)
-                                        .addGap(0, 0, Short.MAX_VALUE)))))))
+                                        .addGap(0, 0, Short.MAX_VALUE))))
+                            .addGroup(tiltLayout.createSequentialGroup()
+                                .addGap(5, 5, 5)
+                                .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel6))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel8)
+                                    .addGroup(tiltLayout.createSequentialGroup()
+                                        .addComponent(geAzm, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(tiltLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(jLabel5)
+                                            .addComponent(azm))))
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
@@ -306,17 +316,13 @@ public class GEControls extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void geStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_geStartActionPerformed
-        try {
-            geFrame = GEFrame.getFrame();
-            geFrame.startGE();
-            cam = geFrame.getGEObject().GetCamera(1);
-            cam.setRange(100);
-        } catch (COMException ex) {
-            Logger.getLogger(GEControls.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        geFrame = GEFrame.getFrame();
+        geFrame.startGE();
+
     }//GEN-LAST:event_geStartActionPerformed
 
     private void geRunSimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_geRunSimActionPerformed
+        Logger.getAnonymousLogger().info("Starting simulation...");
 
         doKML();
     }//GEN-LAST:event_geRunSimActionPerformed
@@ -326,15 +332,16 @@ public class GEControls extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void geStopSimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_geStopSimActionPerformed
+        Logger.getAnonymousLogger().info("Stopping simulation...");
         updateWorker.cancel(true);
-        kmlFile.delete();
+
+
     }//GEN-LAST:event_geStopSimActionPerformed
 
     private void geSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_geSearchActionPerformed
         try {
-            cam.setFocusPointLatitude(Double.parseDouble(geLat.getText()));
-            cam.setFocusPointLongitude(Double.parseDouble(geLon.getText()));
-            geFrame.getGEObject().SetCamera(cam, 4.0);
+            geFrame.setGEFocus(Double.parseDouble(geLat.getText()), Double.parseDouble(geLon.getText()));
+
         } catch (COMException ex) {
             Logger.getLogger(GEControls.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -351,35 +358,27 @@ public class GEControls extends javax.swing.JFrame {
 
     }//GEN-LAST:event_geLoadKMLActionPerformed
 
-    private void geAltStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_geAltStateChanged
-
+    private void adjustGECamera() {
         try {
-            cam.setFocusPointAltitude((double) (geAlt.getValue()));
-            cam.setFocusPointAltitudeMode(2);
+            geFrame.setGECamera((double) (geAlt.getValue()), (double) (geTilt.getValue()), (double) (geAzm.getValue()));
 
-            geFrame.getGEObject().SetCamera(cam, 4.0);
         } catch (COMException ex) {
             Logger.getLogger(GEControls.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+
+    private void geAltStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_geAltStateChanged
+        adjustGECamera();
+
     }//GEN-LAST:event_geAltStateChanged
 
     private void geTiltStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_geTiltStateChanged
-        try {
-            cam.setTilt((double) (geTilt.getValue()));
-            geFrame.getGEObject().SetCamera(cam, 4.0);
-        } catch (COMException ex) {
-            Logger.getLogger(GEControls.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        adjustGECamera();
     }//GEN-LAST:event_geTiltStateChanged
 
     private void geAzmStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_geAzmStateChanged
-        try {
-            cam.setAzimuth((double) (geAzm.getValue()));
-
-            geFrame.getGEObject().SetCamera(cam, 4.0);
-        } catch (COMException ex) {
-            Logger.getLogger(GEControls.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        adjustGECamera();
     }//GEN-LAST:event_geAzmStateChanged
     private File genLinkKML(File kmlFile, double updateInterval) throws FileNotFoundException, IOException {
         File linkKML = new File("link.kml");
@@ -392,7 +391,6 @@ public class GEControls extends javax.swing.JFrame {
         networklink.setName(kmlFile.getName());
         networklink.setRefreshVisibility(true);
         networklink.setFlyToView(true);
-
         link.setHref(kmlFile.getAbsolutePath());
         link.setRefreshInterval(updateInterval);
         link.setRefreshMode(RefreshMode.ON_INTERVAL);
@@ -406,7 +404,9 @@ public class GEControls extends javax.swing.JFrame {
     public void updateKML(File targetKML) {
         double lat = new Random().nextDouble() * 100;
         double longi = new Random().nextDouble() * 100;
-        double alt = new Random().nextDouble() * 100;
+        double alt = new Random().nextDouble() * 1000;
+        Logger.getAnonymousLogger().log(Level.INFO, "Random Location: [ {0} | {1}]@ {2} mts ", new Object[]{lat, longi, alt});
+
         try {
 
             if (targetKML.exists()) {
@@ -440,9 +440,15 @@ public class GEControls extends javax.swing.JFrame {
     private void doKML() {
         try {
             final File localFile = this.createKML();
-            File linkFile = this.genLinkKML(localFile, 4.0);
+            final File linkFile = this.genLinkKML(localFile, 4.0);
             geFrame.loadKMLFileToGE(linkFile);
             updateWorker = new SwingWorker<Void, Void>() {
+
+                @Override
+                protected void done() {
+                    localFile.delete();
+                    linkFile.delete();
+                }
 
                 @Override
                 protected Void doInBackground() throws Exception {
@@ -520,6 +526,7 @@ public class GEControls extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel tilt;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables

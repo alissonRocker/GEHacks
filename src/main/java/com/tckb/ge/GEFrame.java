@@ -6,6 +6,7 @@
 package com.tckb.ge;
 
 import com.tckb.ge.stubs.IApplicationGE;
+import com.tckb.ge.stubs.ICameraInfoGE;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -89,8 +90,12 @@ public class GEFrame extends javax.swing.JFrame {
     }
 
     public void closeGE() {
-        geFrameObject = null;
-        gePanel.quitGE();
+        try {
+            geFrameObject = null;
+            gePanel.quitGE();
+        } catch (COMException | IOException ex) {
+            Logger.getLogger(GEFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void loadKMLFileToGE(File linkFile) {
@@ -100,10 +105,40 @@ public class GEFrame extends javax.swing.JFrame {
             Logger.getLogger(GEFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public void setGECamera(double altitue, double tilt, double azmuth) throws COMException {
+        short speed = 5;
+        int altMode = 2;
+        ICameraInfoGE cam = getGECameraObject();
+        double lat = cam.getFocusPointLatitude();
+        double lon = cam.getFocusPointLongitude();
+        cam.setAzimuth(azmuth);
+        cam.setTilt(tilt);
+        cam.setFocusPointAltitude(altitue);
+        cam.setRange(0);
+        cam.setFocusPointAltitudeMode(altMode);
+        this.gePanel.getInternObject().SetCamera(cam, speed);
+
+    }
+
+    public void setGEFocus(double lat, double lon) throws COMException {
+        short speed = 5;
+        int altMode = 1;
+        ICameraInfoGE cam = getGECameraObject();
+        cam.setFocusPointLatitude(lat);
+        cam.setFocusPointLongitude(lon);
+//        cam.setAzimuth(azmuth);
+//        cam.setTilt(tilt);
+//        cam.setFocusPointAltitude(altitue);
+        cam.setRange(100);
+        cam.setFocusPointAltitudeMode(altMode);
+        this.gePanel.getInternObject().SetCamera(cam, speed);
+    }
+
+    private ICameraInfoGE getGECameraObject() throws COMException {
+        return gePanel.getInternObject().GetCamera(1);
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 
-    public IApplicationGE getGEObject() {
-        return gePanel.getInternObject();
-    }
 }
