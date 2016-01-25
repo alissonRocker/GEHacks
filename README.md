@@ -1,3 +1,5 @@
+(This project is not maintained. Feel free to clone this repo.)
+
 Google Earth hacks
 ==================
 
@@ -10,7 +12,7 @@ Requirements:
 
 ---
 NOTE: <br/>
-* GoogleEarth >=7 is not compatible with JaWin at the moment. Please switch back to older version of Goole Earth. Unless you wanna see this ugly message!
+* GoogleEarth >=7 is not compatible with JaWin at the moment. Please switch back to older version of Google Earth. Unless you wanna see this ugly message!
 
 ````
 Jun 09, 2015 8:14:04 PM com.tckb.ge.GEFrame startGE
@@ -22,7 +24,7 @@ org.jawin.COMException: 800401f3: Invalid class string
         at org.jawin.FuncPtr.invoke(FuncPtr.java:186)
         at org.jawin.FuncPtr.invoke(FuncPtr.java:205)
 ```
-* [JaWin](http://sourceforge.net/projects/jawinproject/files/jawinproject/Jawin-2.0-alpha1/) binaries in Sf.net are built on a 32-bit machine so, unless you want to rebuilt the entire project, I'd recommend you use 32bit JVM to compile and run the code.
+* [JaWin](http://sourceforge.net/projects/jawinproject/files/jawinproject/Jawin-2.0-alpha1/) binaries in Sf.net are to be added to your classpath (-Djava.library.path=/path/to/jawin/bin). This is built on a 32-bit machine so, unless you want to rebuilt the entire project, I'd recommend you use 32bit JVM to compile and run the code.
 
 ========
 The stubs (com/tckb/ge/stubs) generated from Jawin are used to interact with the Google Earth's COM API. 
